@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<!--[if IE 9]><html class="lt-ie10" lang="en" > <![endif]-->
+<html class="no-js" lang="{{ languages.first.locale }}" xmlns="http://www.w3.org/1999/xhtml"> <!--<![endif]-->
+
+  <head>
+    <title>{{page_title}}</title>
+    <meta name="description" content="{{meta_description}}" />
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <meta name="robots" content="follow, all" />
+
+    <!-- Set the viewport width to device width for mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    {% include 'og_meta_tags' %}
+
+    {% if languages.size > 1 %}
+    {% for language in languages %}
+    <link rel="alternate" hreflang="{{language.locale | replace: '-', '_'}}" href="{{language.url}}" />
+    {% endfor %}
+    {% endif %}
+
+    <script src="//code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    {%if template == "category" %}
+    <link rel="canonical" href="{{category.url}}">
+    {%else%}
+    <link rel="canonical" href="{{current_url}}">
+    {%endif%}
+
+    <link rel="icon" href="{% if options.favicon != empty %} {{ options.favicon }} {% else %} {{'favicon.png' | asset }} {% endif%}">
+
+    <link rel="stylesheet" href="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//use.fontawesome.com/releases/v5.7.1/css/all.css">
+    <link rel="stylesheet" href="{{ 'styles.css' | asset }}"/>
+    <link rel="stylesheet" href="{{ 'color_pickers.css' | asset }}"/>
+    <link rel="stylesheet" href="{{ 'linear-icon.css' | asset }}"/>
+    {% if template == 'home' or template == 'product' %}
+    <link href="//cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" rel="stylesheet">
+    {% endif %}
+
+    {% include 'schema' %}
+
+    {% if options.head_code != empty %}
+    <!-- Custom head code -->
+    {{options.head_code}}
+    {% endif %}
+  </head>
+  <body class="{% if template == 'cart' or template == 'checkout' or template == 'revieworder' or template == 'success' %}cart{% endif %}">
+
+    <!--[if lt IE 8]>
+<p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+    {% if template != 'cart' and template != 'checkout' and template != 'revieworder' and template != 'success' %}
+    {% include 'header' %}
+    {% if template != 'home' and template != 'customer_newpassword' %}
+    <section class="breadcrumb d-none d-md-block">
+      <div class="container">
+        <ul>
+          {% for breadcrumb in breadcrumbs %}
+          {% if forloop.last %}
+          <li class="breadcrumb-item"><span>{{breadcrumb.text}}</span></li>
+          {% else %}
+          <li class="breadcrumb-item"><a href="{{breadcrumb.url}}" class="trsn" title="{% t 'Go back to' %} {{breadcrumb.text}}">{{breadcrumb.text}}</a></li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </section>
+    {% endif %}
+    {% else %}
+    {% include 'header_cart' %}
+    {% endif %}
+    <!-- Page Content -->
+    {{content}}
+
+    {% if template != 'cart' and template != 'checkout' and template != 'revieworder' and template != 'success' %}
+    {% include 'newsletter_block' %}
+    {% include 'footer' %}
+    {% endif %}
+    <!-- /.container -->
+    <!-- Bootstrap Core JavaScript -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+    <script src="//stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    {% if template == 'product' %}
+    <script src="//cdn.jsdelivr.net/bootstrap.filestyle/1.1.0/js/bootstrap-filestyle.min.js"></script>
+    {% endif %}
+    {% if template == 'product' or template == 'home' or template == 'category' or template == 'searchresults'%}
+    {% include 'qty_buttons' %}
+    {% endif %}
+    <!-- Add to cart plugin -->
+    {% if options.display_cart_notification %}
+    <script>
+      function getProductOptions(form) {
+        var options = {};
+        $(form).find(".prod-options").each(function() {
+          var option = $(this);
+          options[option.attr('id')] = option.val();
+        })
+        return options;
+      }
+    </script>
+    {% endif %}
+
+    {% include 'owl_carousel_options' %}
+    <script type="text/javascript" src="{{ 'main.js' | asset }}"></script>
+    {% include 'custom_js' %}
+    {% if options.currencies != blank and options.open_exchange_rates_token != blank %}
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/money.js/0.2.0/money.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/accounting.js/0.4.1/accounting.min.js"></script>
+    <script type="text/javascript">
+      var open_exchange_rates_token = '{{options.open_exchange_rates_token}}';
+      var i18n_decimal_mark = '{{store.i18n_decimal_mark}}';
+
+      if(typeof(Storage) !== "undefined") {
+        if (sessionStorage.getItem('global_currency') == null){
+          sessionStorage.setItem('global_currency', '{{ store.currency_code }}');
+          sessionStorage.setItem('store_currency', '{{ store.currency_code }}');
+        }
+      } else {
+        // Sorry! No Web Storage support..
+        console.log("Unable to use multi-currency on this store. Please update your browser.");
+        $('#current_currency').parents('li').hide();
+      }
+    </script>
+    {% endif %}
+
+    {% if options.display_cart_notification %}
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <script type="text/javascript">
+      var shoppingCartMessage = '{% t "Go to Shopping Cart." %}';
+      var singleProductMessage = '{% t "has been added to the shopping cart." %}'
+      var multiProductMessage = '{% t "have been added to the shopping cart." %}'
+    </script>
+    {% include 'addtocart' %}
+    {% endif %}
+
+    {% include 'fonts' %}
+
+    {% if options.body_code != empty %}
+    <!-- Custom body code -->
+    {{options.body_code}}
+    {% endif %} 
+  </body>
+
+</html>
